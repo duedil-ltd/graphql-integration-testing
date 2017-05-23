@@ -1,0 +1,19 @@
+query ExampleOne {
+  hero {
+    name
+    ...DroidFields
+  }
+}
+
+fragment DroidFields on Droid {
+  primaryFunction
+}
+<===>
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2",
+      "primaryFunction": "Astromech"
+    }
+  }
+}

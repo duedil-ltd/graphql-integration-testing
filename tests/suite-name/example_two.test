@@ -1,0 +1,21 @@
+query ExampleTwo($id: String) {
+  hero(id: $id) {
+    name
+    ... on Droid {
+      primaryFunction
+    }
+  }
+}
+<===>
+{
+  "id": "1"
+}
+<===>
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2",
+      "primaryFunction": "Astromech"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+#
+# Wrapper script for launching gqltester.py in a virtualenv, as well as managing dependency installation
+
+BASEDIR="$(dirname "$(readlink -f "$0")")/.."
+ENVDIR="$BASEDIR/venv"
+
+set -e
+
+if [ ! $(which virtualenv) ]; then
+  echo "virtualenv not found!" >&2;
+  exit 127
+fi
+
+if [ ! -e $ENVDIR/bin/activate ]; then
+  echo "No virtualenv found; creating one in $ENVDIR ..."
+  virtualenv $ENVDIR
+fi
+
+source $ENVDIR/bin/activate
+
+set +e
+cmp --silent $ENVDIR/.last-reqs-installed $BASEDIR/requirements.txt
+DEPS_GOOD=$?
+set -e
+
+if [ $DEPS_GOOD -ne 0 ]; then
+  echo "Requirements not yet installed, or have changed; reinstalling";
+  pip install -r $BASEDIR/requirements.txt
+  cp $BASEDIR/requirements.txt $ENVDIR/.last-reqs-installed
+fi
+
+# python env looks good; handing over to gqltester.py ...
+
+python $BASEDIR/gqltester.py $@
