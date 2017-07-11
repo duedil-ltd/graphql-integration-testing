@@ -43,7 +43,7 @@ This is useful if you have your development environment set to 500 on exceptions
 Run tests and replace expected responses on failure:
 
 ```
-gqltester -v 'http://localhost:8000/'
+gqltester -r 'http://localhost:8000/'
 ```
 
 This speeds up fixing failures once you've identified they're not regressions.
