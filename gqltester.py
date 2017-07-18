@@ -27,7 +27,7 @@ def main(argv):
     """Run the tests from command-line arguments."""
     try:
         opts, args = getopt.getopt(argv, "hvrd", ["vv", "regression-server="])
-        testsDir = os.getcwd() + '/tests/'
+        testsDir = os.getcwd() + '/gqltests/'
         gqlTester = GraphQLTester(testsDir, args[0])
     except getopt.GetoptError:
         print 'tester.py -v'
