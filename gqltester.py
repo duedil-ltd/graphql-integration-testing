@@ -14,13 +14,13 @@ DEBUG = False
 
 def printHelp():
     """Print usage instructions."""
-    print 'Run all suites: tester.py <url>'
-    print 'Run a suite: tester.py <url> <suite>'
-    print 'Run multiple suites: tester.py <url> <suite1> <suite2> <suite3>'
-    print 'Get diff on failure: tester.py -v <url> <suite1>'
-    print 'Get diff on failure: tester.py --vv <url>'
-    print 'Test against regression server: tester.py --regression-server="<url>" <url>'
-    print 'Replace failing tests expectation with the new output: tester.py -r <url>'
+    print('Run all suites: tester.py <url>')
+    print('Run a suite: tester.py <url> <suite>')
+    print('Run multiple suites: tester.py <url> <suite1> <suite2> <suite3>')
+    print('Get diff on failure: tester.py -v <url> <suite1>')
+    print('Get diff on failure: tester.py --vv <url>')
+    print('Test against regression server: tester.py --regression-server="<url>" <url>')
+    print('Replace failing tests expectation with the new output: tester.py -r <url>')
 
 
 def main(argv):
@@ -30,7 +30,7 @@ def main(argv):
         testsDir = os.getcwd() + '/gqltests/'
         gqlTester = GraphQLTester(testsDir, args[0])
     except getopt.GetoptError:
-        print 'tester.py -v'
+        print('tester.py -v')
         sys.exit(2)
 
     for opt, arg in opts:
@@ -67,8 +67,8 @@ def main(argv):
         for suite in suites:
             suite, tests = gqlTester.extractTestsForSuite(suite)
 
-            print "Running " + suite + " test suite"
-            print "================================"
+            print("Running " + suite + " test suite")
+            print("================================")
             
             if not DEBUG:
                 res = POOL.map_async(gqlTester, tests)

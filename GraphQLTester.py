@@ -39,7 +39,7 @@ class GraphQLTester(object):
                     for t in os.listdir(self.baseDir + suite) if not t.startswith('.') and (not testfilter or fnmatch.fnmatch(t, testfilter))
                 ]
             except OSError:
-                print '❗ Suite ' + suite + ' does not exist!'
+                print('❗ Suite ' + suite + ' does not exist!')
                 sys.exit(2)
         else:
             suite, test = suite.split('/')
@@ -60,11 +60,11 @@ class GraphQLTester(object):
         expected_split = expected.splitlines(1)
 
         if self.checkExpectation(expected_split, response_split):
-            print "✅  " + test_name
+            print("✅  " + test_name)
         else:
-            print "❌ (%i)  %s" % (response_code, test_name)
+            print("❌ (%i)  %s" % (response_code, test_name))
             if self.verbose == 2 or (self.verbose == 1 and response_code == 200):
-                print ''.join(difflib.Differ().compare(expected_split, response_split))
+                print(''.join(difflib.Differ().compare(expected_split, response_split)))
 
             if self.replace_expectations:
                 self.replaceTest(test_path, response)
@@ -87,7 +87,7 @@ class GraphQLTester(object):
             expected, response_code = self.runTestQuery(regUrl, query, params)
 
             if response_code != 200:
-                print "Regression server is having issues. Returned with %i" % (response_code)
+                print("Regression server is having issues. Returned with %i" % (response_code))
                 sys.exit(2)
         else:
             # remove any comments as they're not allowed in valid json
@@ -109,7 +109,7 @@ class GraphQLTester(object):
             response = json.loads(r.text)
             return json.dumps(response, indent=4, sort_keys=True), r.status_code
         except:
-            print r.text, r.status_code
+            print(r.text, r.status_code)
 
     def checkExpectation(self, expected, response):
         """Check if the given response matches the given expectation."""
