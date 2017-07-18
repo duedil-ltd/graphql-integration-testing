@@ -94,24 +94,6 @@ query Example($id: String) {
 }
 ```
 
-Furthermore you can also have wildcards in your expectations:
-
-```
-query Example {
-	a {
-		b
-	}
-}
-<===>
-{
-	"data": {
-		"a": {
-			"b": "Expected test*"
-		}
-	}
-}
-```
-
 You can also put a url as an expectation. This will simply run the query against the url and compare this to the response of the system under test. This is useful for when you have a few tests where the data updates all the time.
 It is no different from running gqlteser with the --regression-server option, only that it will do it for that test only.
 

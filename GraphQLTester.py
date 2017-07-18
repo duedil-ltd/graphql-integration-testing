@@ -118,7 +118,9 @@ class GraphQLTester(object):
 
         match = True
         for index, line in enumerate(response):
-            if not fnmatch.fnmatch(line, expected[index]):
+            # Temporarily remove supporting wildcard matching as it unexpectedly also impacted [ and ]
+            # if not fnmatch.fnmatch(line, expected[index]):
+            if not line == expected[index]:
                 match = False
 
         return match
