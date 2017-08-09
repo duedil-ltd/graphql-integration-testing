@@ -54,6 +54,10 @@ class GraphQLTester(object):
 
         response, response_code = self.runTestQuery(self.url, query, params)
 
+        if response_code != 200:
+            print("GraphQL server is having issues. Returned with %i and response: %s" % (response_code, response))
+            sys.exit(2)
+
         test_name = titleize(test)[:-5]
 
         response_split = response.splitlines(1)
@@ -109,7 +113,7 @@ class GraphQLTester(object):
             response = json.loads(r.text)
             return json.dumps(response, indent=4, sort_keys=True), r.status_code
         except:
-            print(r.text, r.status_code)
+            return r.text, r.status_code
 
     def checkExpectation(self, expected, response):
         """Check if the given response matches the given expectation."""
