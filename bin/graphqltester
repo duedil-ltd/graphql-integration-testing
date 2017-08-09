@@ -2,7 +2,7 @@
 #
 # Wrapper script for launching gqltester.py in a virtualenv, as well as managing dependency installation
 
-BASEDIR=$(cd $(dirname "$0") && pwd)
+BASEDIR=$(cd $(dirname $(readlink "$0"))/.. && pwd)
 ENVDIR="$BASEDIR/venv"
 
 set -e
