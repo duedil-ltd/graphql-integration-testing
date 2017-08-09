@@ -128,6 +128,6 @@ class GraphQLTester(object):
     def replaceTest(self, path, expected):
         fileContent = open(path, 'r').read()
         test = fileContent.split('<===>')
-        test[-1] = "\n"+expected
+        test[-1] = "\n"+expected+"\n"
 
         open(path, 'w').write("<===>".join(test))
