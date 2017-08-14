@@ -20,11 +20,15 @@ Run a testing suite:
 gqltester 'http://localhost:8000/' suite-name
 ```
 
+(where `suite-name` is name of a directory located under `/gqltests/` in your project)
+
 Run tests matching wildcard search:
 
 ```
 gqltester 'http://localhost:8000/' suite-name/example\*
 ```
+
+(where `example\*` matches filenames from a suite)
 
 Run tests and show a diff on failure:
 
@@ -95,7 +99,7 @@ query Example($id: String) {
 ```
 
 You can also put a url as an expectation. This will simply run the query against the url and compare this to the response of the system under test. This is useful for when you have a few tests where the data updates all the time.
-It is no different from running gqlteser with the --regression-server option, only that it will do it for that test only.
+It is no different from running gqltester with the --regression-server option, only that it will do it for that test only.
 
 ```
 query Example {
@@ -112,7 +116,7 @@ http://staging.acme.com
 ```
 git clone git@github.com:duedil-ltd/graphql-integration-testing.git
 # for mac at least; having a symlink in /usr/local/bin is reasonable. But anyway of adding the script to $PATH will work.
-ln -s `PWD`/graphql-integration-testing/bin/graphqltester /usr/local/bin/graphqltester
+ln -s `PWD`/graphql-integration-testing/bin/graphqltester /usr/local/bin/gqltester
 ```
 
 ## TODO
