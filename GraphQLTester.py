@@ -52,10 +52,18 @@ class GraphQLTester(object):
         test_path = self.baseDir + suite + "/" + test
         query, params, expected = self.getTest(test_path)
 
-        response, response_code = self.runTestQuery(self.url, query, params)
+        attempts = 0
+        response_code = 0
+        while response_code != 200 and attempts < 4:
+            attempts += 1
+            response, response_code = self.runTestQuery(self.url, query, params)
 
         if response_code != 200:
-            print("GraphQL server is having issues. Returned with %i and response: %s" % (response_code, response))
+            print("GraphQL server is having issues with %s. Tried %i times. Returned with %i." % (test, attempts, response_code))
+
+            if self.verbose == 2:
+                print("and response: %s" % (response))
+
             sys.exit(2)
 
         test_name = titleize(test)[:-5]
@@ -72,6 +80,9 @@ class GraphQLTester(object):
 
             if self.replace_expectations:
                 self.replaceTest(test_path, response)
+
+        if attempts > 1:
+            print("-  ⚠️  it took %i attepts to get a 200 response code for %s" % (attempts, test_name))
 
     def getTest(self, path):
         """Load the test query and response-assertion JSON from the given path."""
