@@ -35,7 +35,7 @@ def main(argv):
 
     for opt, arg in opts:
         if opt == '-h':
-            print_help()
+            printHelp()
             sys.exit()
         elif opt == '-v':
             gqlTester.verbose = 1
