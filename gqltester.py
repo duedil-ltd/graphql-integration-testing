@@ -60,6 +60,7 @@ def main(argv):
     POOL = multiprocessing.Pool(5)
     signal.signal(signal.SIGINT, original_sigint_handler)
 
+    test_results = []
     try:
         if len(args) > 1:
             suites = args[1:]
@@ -72,10 +73,10 @@ def main(argv):
             
             if not DEBUG:
                 res = POOL.map_async(gqlTester, tests)
-                res.get(60 * 5) # Without the timeout this blocking call ignores all signals.
+                test_results = test_results + res.get(60 * 5) # Without the timeout this blocking call ignores all signals.
             else:
                 for t in tests:
-                    gqlTester(t)
+                    test_results.append(gqlTester(t))
 
     except KeyboardInterrupt:
         print("Caught KeyboardInterrupt, terminating workers")
@@ -83,6 +84,10 @@ def main(argv):
         POOL.join()
     else:
         POOL.close()
+
+    # If there was a failure: exit with an error code to allow CI to pick it up.
+    if (False in test_results):
+        exit(1)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

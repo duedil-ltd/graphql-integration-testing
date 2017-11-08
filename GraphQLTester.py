@@ -71,7 +71,8 @@ class GraphQLTester(object):
         response_split = response.splitlines(1)
         expected_split = expected.splitlines(1)
 
-        if self.checkExpectation(expected_split, response_split):
+        test_passed = self.checkExpectation(expected_split, response_split)
+        if test_passed:
             print("✅  " + test_name)
         else:
             print("❌ (%i)  %s" % (response_code, test_name))
@@ -83,6 +84,8 @@ class GraphQLTester(object):
 
         if attempts > 1:
             print("-  ⚠️  it took %i attepts to get a 200 response code for %s" % (attempts, test_name))
+
+        return test_passed
 
     def getTest(self, path):
         """Load the test query and response-assertion JSON from the given path."""
