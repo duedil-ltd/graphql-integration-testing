@@ -85,6 +85,8 @@ def main(argv):
     else:
         POOL.close()
 
+    print("Total tests run: %d. Failed tests: %d" % (len(test_results), len([x for x in test_results if x is False])))
+
     # If there was a failure: exit with an error code to allow CI to pick it up.
     if (False in test_results):
         exit(1)
