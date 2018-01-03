@@ -121,7 +121,7 @@ class GraphQLTester(object):
 
     def runTestQuery(self, url, query, params):
         """Run the test query and return the server's response."""
-        r = requests.post(url, data={'query': query, 'variables': params})
+        r = requests.post(url, data={'query': query, 'variables': params}, timeout=120)
 
         # convert to json and then back into text rule out formatting differences
         try:
