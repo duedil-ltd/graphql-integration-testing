@@ -52,7 +52,7 @@ class GraphQLTester(object):
         test_path = self.baseDir + suite + "/" + test
         try:
             query, params, expected = self.getTest(test_path)
-        except Exception, e:
+        except Exception as e:
             print(e)
             return False
 
