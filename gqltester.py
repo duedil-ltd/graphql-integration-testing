@@ -82,8 +82,11 @@ def main(argv):
         print("Caught KeyboardInterrupt, terminating workers")
         POOL.terminate()
         POOL.join()
-    else:
-        POOL.close()
+    except multiprocessing.TimeoutError:
+        print("Process timed out")
+
+    POOL.terminate()
+    POOL.close()
 
     print("Total tests run: %d. Failed tests: %d" % (len(test_results), len([x for x in test_results if x is False])))
 

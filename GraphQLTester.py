@@ -24,7 +24,7 @@ class GraphQLTester(object):
         self.url = url
 
     def __call__(self, test):
-        return self.runTest(test);
+        return self.runTest(test)
 
     def extractTestsForSuite(self, suite):
         """Extract all tests in a 'suite' (which must be a directory)."""
@@ -50,7 +50,11 @@ class GraphQLTester(object):
     def runTest(self, test):
         suite, test = test
         test_path = self.baseDir + suite + "/" + test
-        query, params, expected = self.getTest(test_path)
+        try:
+            query, params, expected = self.getTest(test_path)
+        except Exception, e:
+            print(e)
+            return False
 
         attempts = 0
         response_code = 0
@@ -60,11 +64,9 @@ class GraphQLTester(object):
 
         if response_code != 200:
             print("GraphQL server is having issues with %s. Tried %i times. Returned with %i." % (test, attempts, response_code))
-
             if self.verbose == 2:
                 print("and response: %s" % (response))
-
-            sys.exit(2)
+            return False
 
         test_name = titleize(test)[:-5]
 
@@ -105,8 +107,7 @@ class GraphQLTester(object):
             expected, response_code = self.runTestQuery(regUrl, query, params)
 
             if response_code != 200:
-                print("Regression server is having issues. Returned with %i" % (response_code))
-                sys.exit(2)
+                raise Exception("Regression server is having issues. Returned with %i" % (response_code))
         else:
             # remove any comments as they're not allowed in valid json
             expected = re.sub(r'^\s*?#.+$', '', expected, flags=re.MULTILINE)
@@ -120,7 +121,7 @@ class GraphQLTester(object):
 
     def runTestQuery(self, url, query, params):
         """Run the test query and return the server's response."""
-        r = requests.post(url, data={'query': query, 'variables': params})
+        r = requests.post(url, data={'query': query, 'variables': params}, timeout=120)
 
         # convert to json and then back into text rule out formatting differences
         try:
