@@ -32,4 +32,4 @@ fi
 
 # python env looks good; handing over to gqltester.py ...
 
-python $BASEDIR/gqltester.py $@
+python -u $BASEDIR/gqltester.py $@
