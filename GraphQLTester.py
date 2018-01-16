@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Runs test files in a given dir against the given server."""
 
+import click
 import sys
 import re
 import os
@@ -39,7 +40,7 @@ class GraphQLTester(object):
                     for t in os.listdir(self.baseDir + suite) if not t.startswith('.') and (not testfilter or fnmatch.fnmatch(t, testfilter))
                 ]
             except OSError:
-                print('❗ Suite ' + suite + ' does not exist!')
+                click.echo('❗ Suite ' + suite + ' does not exist!')
                 sys.exit(2)
         else:
             suite, test = suite.split('/')
@@ -53,7 +54,7 @@ class GraphQLTester(object):
         try:
             query, params, expected = self.getTest(test_path)
         except Exception as e:
-            print(e)
+            click.echo(e)
             return False
 
         attempts = 0
@@ -63,9 +64,9 @@ class GraphQLTester(object):
             response, response_code = self.runTestQuery(self.url, query, params)
 
         if response_code != 200:
-            print("GraphQL server is having issues with %s. Tried %i times. Returned with %i." % (test, attempts, response_code))
+            click.echo("GraphQL server is having issues with %s. Tried %i times. Returned with %i." % (test, attempts, response_code))
             if self.verbose == 2:
-                print("and response: %s" % (response))
+                click.echo("and response: %s" % (response))
             return False
 
         test_name = titleize(test)[:-5]
@@ -75,17 +76,17 @@ class GraphQLTester(object):
 
         test_passed = self.checkExpectation(expected_split, response_split)
         if test_passed:
-            print("✅  " + test_name)
+            click.echo("✅  " + test_name)
         else:
-            print("❌ (%i)  %s" % (response_code, test_name))
+            click.echo("❌ (%i)  %s" % (response_code, test_name))
             if self.verbose == 2 or (self.verbose == 1 and response_code == 200):
-                print(''.join(difflib.Differ().compare(expected_split, response_split)))
+                click.echo(''.join(difflib.Differ().compare(expected_split, response_split)))
 
             if self.replace_expectations:
                 self.replaceTest(test_path, response)
 
         if attempts > 1:
-            print("-  ⚠️  it took %i attepts to get a 200 response code for %s" % (attempts, test_name))
+            click.echo("-  ⚠️  it took %i attepts to get a 200 response code for %s" % (attempts, test_name))
 
         return test_passed
 

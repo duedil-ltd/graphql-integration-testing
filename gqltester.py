@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Runs test files in a given dir against the given server."""
 
+import click
 import sys
 import getopt
 import os
@@ -12,48 +13,42 @@ from GraphQLTester import GraphQLTester
 
 DEBUG = False
 
-def printHelp():
-    """Print usage instructions."""
-    print('Run all suites: tester.py <url>')
-    print('Run a suite: tester.py <url> <suite>')
-    print('Run multiple suites: tester.py <url> <suite1> <suite2> <suite3>')
-    print('Get diff on failure: tester.py -v <url> <suite1>')
-    print('Get diff on failure: tester.py --vv <url>')
-    print('Test against regression server: tester.py --regression-server="<url>" <url>')
-    print('Replace failing tests expectation with the new output: tester.py -r <url>')
+@click.command()
+@click.argument('url')
+@click.argument('suite', nargs=-1)
+@click.option('-v', is_flag=True, help='Log out diffs on failure for HTTP 200 responses.')
+@click.option('-vv', is_flag=True, help='Log out diffs on failure for HTTP 200 responses as well as error responses for non HTTP 200 responses.')
+@click.option('-d', is_flag=True, help='Disable running tests in parallel. This improves error messages.')
+@click.option('-r', is_flag=True, help='Replace failed test expectations with new observed responses.')
+@click.option('--regression-server', default="", help='Disable running tests in parallel. This improves error messages.')
+def main(url, suite, v, vv, d, r, regression_server):
+    """Integration testing utility for GraphQL servers.
 
+    Runs tests located in the ./gqltests folder.
 
-def main(argv):
-    """Run the tests from command-line arguments."""
-    try:
-        opts, args = getopt.getopt(argv, "hvrd", ["vv", "regression-server="])
-        testsDir = os.getcwd() + '/gqltests/'
-        gqlTester = GraphQLTester(testsDir, args[0])
-    except getopt.GetoptError:
-        print('tester.py -v')
-        sys.exit(2)
+    Use the suite argument to narrow down which tests to run.
 
-    for opt, arg in opts:
-        if opt == '-h':
-            printHelp()
-            sys.exit()
-        elif opt == '-v':
-            gqlTester.verbose = 1
-        elif opt == '--vv':
-            gqlTester.verbose = 2
-        elif opt == '-r':
-            gqlTester.replace_expectations = True
-        elif opt == '--regression-server':
-            gqlTester.regressionUrl = arg
-        elif opt == '-d':
-            global DEBUG
-            DEBUG = True
+    SUITE=feature_x will run any tests inside gqltests/feature_x
 
-    if len(args) == 0:
-        printHelp()
-        sys.exit()
+    SUITE=feature_x/file_y will run a single test in gqltests/feature_x/file_y
 
-    suites = [suite for suite in os.listdir(testsDir) if os.path.isdir(os.path.join(testsDir, suite))]
+    SUITE=feature_x/file\* will run any test in gqltests/feature_x matching file*
+    """
+
+    testsDir = os.getcwd() + '/gqltests/'
+    gqlTester = GraphQLTester(testsDir, url)
+
+    if v:
+        gqlTester.verbose = 1
+    if vv:
+        gqlTester.verbose = 2
+    if r:
+        gqlTester.replace_expectations = True
+    if regression_server:
+        gqlTester.regressionUrl = regression_server
+    if d:
+        global DEBUG
+        DEBUG = True
 
     # Get around Pool not gracefully handling KeyboardInterrupt
     original_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -62,14 +57,17 @@ def main(argv):
 
     test_results = []
     try:
-        if len(args) > 1:
-            suites = args[1:]
+        # suite is in fact an array of suites
+        if len(suite) > 1:
+            suites = suite
+        else:
+            suites = [suite for suite in os.listdir(testsDir) if os.path.isdir(os.path.join(testsDir, suite))]
 
         for suite in suites:
             suite, tests = gqlTester.extractTestsForSuite(suite)
 
-            print("Running " + suite + " test suite")
-            print("================================")
+            click.echo("Running " + suite + " test suite")
+            click.echo("================================")
             
             if not DEBUG:
                 res = POOL.map_async(gqlTester, tests)
@@ -79,16 +77,16 @@ def main(argv):
                     test_results.append(gqlTester(t))
 
     except KeyboardInterrupt:
-        print("Caught KeyboardInterrupt, terminating workers")
+        click.echo("Caught KeyboardInterrupt, terminating workers")
         POOL.terminate()
         POOL.join()
     except multiprocessing.TimeoutError:
-        print("Process timed out")
+        click.echo("Process timed out")
 
     POOL.terminate()
     POOL.close()
 
-    print("Total tests run: %d. Failed tests: %d" % (len(test_results), len([x for x in test_results if x is False])))
+    click.echo("Total tests run: %d. Failed tests: %d" % (len(test_results), len([x for x in test_results if x is False])))
 
     # If there was a failure: exit with an error code to allow CI to pick it up.
     if (False in test_results):
