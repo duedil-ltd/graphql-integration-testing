@@ -14,7 +14,7 @@ fi
 
 if [ ! -e $ENVDIR/bin/activate ]; then
   echo "No virtualenv found; creating one in $ENVDIR ..."
-  virtualenv $ENVDIR
+  virtualenv -p python3 $ENVDIR
 fi
 
 source $ENVDIR/bin/activate
