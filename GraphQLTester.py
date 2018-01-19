@@ -50,9 +50,10 @@ class GraphQLTester(object):
 
     def runTest(self, test):
         suite, test = test
+        test_name = titleize(test)[:-5]
         test_path = self.baseDir + suite + "/" + test
         try:
-            query, params, expected = self.getTest(test_path)
+            query, params, expected = self.getTest(test_path, suite, test_name)
         except Exception as e:
             click.echo(e)
             return False
@@ -69,7 +70,6 @@ class GraphQLTester(object):
                 click.echo("and response: %s" % (response))
             return False
 
-        test_name = titleize(test)[:-5]
 
         response_split = response.splitlines(1)
         expected_split = expected.splitlines(1)
@@ -90,7 +90,7 @@ class GraphQLTester(object):
 
         return test_passed
 
-    def getTest(self, path):
+    def getTest(self, path, suite, test_name):
         """Load the test query and response-assertion JSON from the given path."""
         file_content = open(path, 'r').read()
         test = file_content.split('<===>')
@@ -108,7 +108,7 @@ class GraphQLTester(object):
             expected, response_code = self.runTestQuery(regUrl, query, params)
 
             if response_code != 200:
-                raise Exception("Regression server is having issues. Returned with %i" % (response_code))
+                raise Exception("Regression server is having issues with %s (in %s suite). Returned with %i" % (test_name, suite, response_code))
         else:
             # remove any comments as they're not allowed in valid json
             expected = re.sub(r'^\s*?#.+$', '', expected, flags=re.MULTILINE)
