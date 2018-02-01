@@ -58,7 +58,7 @@ def main(url, suite, v, vv, d, r, regression_server):
     test_results = []
     try:
         # suite is in fact an array of suites
-        if len(suite) > 1:
+        if len(suite):
             suites = suite
         else:
             suites = [suite for suite in os.listdir(testsDir) if os.path.isdir(os.path.join(testsDir, suite))]
